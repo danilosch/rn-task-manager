@@ -26,11 +26,6 @@ const taskSchema = z.object({
 
 type TaskFormData = z.infer<typeof taskSchema>;
 
-interface TaskFormScreenProps {
-  taskId?: string;
-  onSubmitSuccess?: () => void;
-}
-
 type TaskFormRouteProp = RouteProp<RootStackParamList, "TaskForm">;
 
 export default function TaskFormScreen() {
@@ -39,14 +34,10 @@ export default function TaskFormScreen() {
   const { tasks, users, addTask, updateTask } = useTasksStore();
   const taskToEdit = tasks.find((t) => t.id === taskId);
 
-  console.log("Task ID:", taskId);
-  console.log("Task to edit:", taskToEdit);
-
   const {
     control,
     handleSubmit,
     formState: { errors },
-    setValue,
   } = useForm<TaskFormData>({
     resolver: zodResolver(taskSchema),
     defaultValues: {

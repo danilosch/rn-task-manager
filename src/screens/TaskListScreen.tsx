@@ -45,9 +45,19 @@ export default function TaskListScreen() {
     fetchTasks(); // reset e recarrega
   }, [fetchTasks]);
 
+  const onSubmitSuccess = useCallback(() => {
+    onRefresh();
+    navigation.goBack();
+  }, [onRefresh, navigation]);
+
   const renderItem = ({ item }: { item: Task }) => (
     <Pressable
-      onPress={() => navigation.navigate("TaskForm", { taskId: item.id })}
+      onPress={() =>
+        navigation.navigate("TaskForm", {
+          taskId: item.id,
+          onSubmitSuccess,
+        })
+      }
       accessibilityRole="button"
       accessibilityLabel={`Editar tarefa ${item.title}`}
       style={styles.taskItem}

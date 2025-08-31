@@ -6,7 +6,7 @@ import TaskFormScreen from "../screens/TaskFormScreen";
 
 export type RootStackParamList = {
   TaskList: undefined;
-  TaskForm: { taskId?: string } | undefined;
+  TaskForm: { taskId?: string; onSubmitSuccess: () => void } | undefined;
 };
 
 const Stack = createNativeStackNavigator<RootStackParamList>();

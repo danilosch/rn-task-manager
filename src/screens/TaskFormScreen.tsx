@@ -3,8 +3,18 @@ import React from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Picker } from "@react-native-picker/picker";
 import { Controller, useForm } from "react-hook-form";
-import { Button, StyleSheet, Text, TextInput, View } from "react-native";
+import {
+  Button,
+  KeyboardAvoidingView,
+  Platform,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TextInput,
+} from "react-native";
 import { z } from "zod";
+import { RouteProp, useRoute } from "@react-navigation/native";
+import { RootStackParamList } from "../navigation";
 
 import { useTasksStore } from "../store/tasksStore";
 
@@ -21,12 +31,16 @@ interface TaskFormScreenProps {
   onSubmitSuccess?: () => void;
 }
 
-const TaskFormScreen: React.FC<TaskFormScreenProps> = ({
-  taskId,
-  onSubmitSuccess,
-}) => {
+type TaskFormRouteProp = RouteProp<RootStackParamList, "TaskForm">;
+
+export default function TaskFormScreen() {
+  const route = useRoute<TaskFormRouteProp>();
+  const { taskId, onSubmitSuccess } = route.params || {};
   const { tasks, users, addTask, updateTask } = useTasksStore();
   const taskToEdit = tasks.find((t) => t.id === taskId);
+
+  console.log("Task ID:", taskId);
+  console.log("Task to edit:", taskToEdit);
 
   const {
     control,
@@ -52,62 +66,72 @@ const TaskFormScreen: React.FC<TaskFormScreenProps> = ({
   };
 
   return (
-    <View style={styles.container}>
-      <Text>Título</Text>
-      <Controller
-        control={control}
-        name="title"
-        render={({ field: { onChange, value } }) => (
-          <TextInput
-            style={styles.input}
-            placeholder="Título da tarefa"
-            value={value}
-            onChangeText={onChange}
-            autoFocus
-          />
+    <KeyboardAvoidingView
+      style={{ flex: 1 }}
+      behavior={Platform.OS === "ios" ? "padding" : undefined}
+      keyboardVerticalOffset={80} // ajuste se o header sobrepor
+    >
+      <ScrollView
+        contentContainerStyle={styles.container}
+        keyboardShouldPersistTaps="handled"
+      >
+        <Text>Título</Text>
+        <Controller
+          control={control}
+          name="title"
+          render={({ field: { onChange, value } }) => (
+            <TextInput
+              style={styles.input}
+              placeholder="Título da tarefa"
+              value={value}
+              onChangeText={onChange}
+            />
+          )}
+        />
+        {errors.title && (
+          <Text style={styles.error}>{errors.title.message}</Text>
         )}
-      />
-      {errors.title && <Text style={styles.error}>{errors.title.message}</Text>}
-      
-      <Text>Responsável</Text>
-      <Controller
-        control={control}
-        name="assigneeId"
-        render={({ field: { onChange, value } }) => (
-          <Picker
-            selectedValue={value}
-            onValueChange={onChange}
-            style={styles.picker}
-          >
-            <Picker.Item label="Selecione..." value="" />
-            {users.map((user) => (
-              <Picker.Item key={user.id} label={user.name} value={user.id} />
-            ))}
-          </Picker>
+
+        <Text>Responsável</Text>
+        <Controller
+          control={control}
+          name="assigneeId"
+          render={({ field: { onChange, value } }) => (
+            <Picker
+              selectedValue={value}
+              onValueChange={onChange}
+              style={styles.picker}
+            >
+              <Picker.Item label="Selecione..." value="" />
+              {users.map((user) => (
+                <Picker.Item key={user.id} label={user.name} value={user.id} />
+              ))}
+            </Picker>
+          )}
+        />
+        {errors.assigneeId && (
+          <Text style={styles.error}>{errors.assigneeId.message}</Text>
         )}
-      />
-      {errors.assigneeId && (
-        <Text style={styles.error}>{errors.assigneeId.message}</Text>
-      )}
-      
-      <Text>Status</Text>
-      <Controller
-        control={control}
-        name="status"
-        render={({ field: { onChange, value } }) => (
-          <Picker selectedValue={value} onValueChange={onChange}>
-            <Picker.Item label="PENDENTE" value={false} />
-            <Picker.Item label="CONCLUÍDA" value={true} />
-          </Picker>
-        )}
-      />
-      <Button
-        title={taskToEdit ? "Salvar" : "Adicionar"}
-        onPress={handleSubmit(onSubmit)}
-      />
-    </View>
+
+        <Text>Status</Text>
+        <Controller
+          control={control}
+          name="status"
+          render={({ field: { onChange, value } }) => (
+            <Picker selectedValue={value} onValueChange={onChange}>
+              <Picker.Item label="PENDENTE" value={false} />
+              <Picker.Item label="CONCLUÍDA" value={true} />
+            </Picker>
+          )}
+        />
+        <Button
+          title={taskToEdit ? "Salvar" : "Adicionar"}
+          onPress={handleSubmit(onSubmit)}
+        />
+      </ScrollView>
+    </KeyboardAvoidingView>
   );
-};
+}
 
 const styles = StyleSheet.create({
   container: { padding: 16 },
@@ -126,5 +150,3 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
 });
-
-export default TaskFormScreen;

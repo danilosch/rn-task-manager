@@ -17,10 +17,12 @@ import {
 import { z } from "zod";
 import { RouteProp, useNavigation, useRoute } from "@react-navigation/native";
 import { RootStackParamList } from "../navigation";
+import { Feather } from "@expo/vector-icons";
 
 import { useTasksStore } from "../store/tasksStore";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import UserSelect from "../components/UserSelect";
+import CustomButton from "../components/CustomButton";
 
 const taskSchema = z.object({
   title: z.string().min(1, "Título obrigatório"),
@@ -120,7 +122,11 @@ export default function TaskFormScreen() {
                 marginVertical: 8,
               }}
             >
-              <Switch value={value} onValueChange={onChange} />
+              <Switch
+                value={value}
+                onValueChange={onChange}
+                thumbColor={"#00465c"}
+              />
               <Text style={{ marginLeft: 8 }}>
                 {value ? "Concluída" : "Pendente"}
               </Text>
@@ -129,12 +135,20 @@ export default function TaskFormScreen() {
         />
 
         <View style={styles.footer}>
-          <Button
+          <CustomButton
+            icon={<Feather name="save" size={18} color="#fff" />}
             title={taskToEdit ? "Salvar" : "Adicionar"}
+            accessibilityLabel="Salvar Tarefa"
             onPress={handleSubmit(onSubmit)}
           />
           {taskToEdit && (
-            <Button title="Excluir" color="gray" onPress={handleDeleteTask} />
+            <CustomButton
+              variant="secondary"
+              icon={<Feather name="trash" size={18} color="#00465c" />}
+              title="Excluir"
+              accessibilityLabel="Excluir Tarefa"
+              onPress={handleDeleteTask}
+            />
           )}
         </View>
       </ScrollView>

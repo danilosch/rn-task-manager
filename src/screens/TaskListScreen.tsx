@@ -1,4 +1,4 @@
-import React, { useEffect, useCallback } from "react";
+import React, { useEffect } from "react";
 import {
   Dimensions,
   View,
@@ -17,6 +17,7 @@ import { RouteProp, useNavigation, useRoute } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { RootStackParamList } from "../navigation";
 import { Feather } from "@expo/vector-icons";
+import CustomButton from "../components/CustomButton";
 
 type NavigationProp = NativeStackNavigationProp<RootStackParamList, "TaskList">;
 
@@ -104,25 +105,20 @@ export default function TaskListScreen() {
   return (
     <View style={styles.container}>
       <View style={styles.hStack}>
-        <TouchableOpacity
-          style={styles.primaryButton}
-          onPress={() => navigation.navigate("TaskForm")}
+        <CustomButton
+          variant="primary"
+          icon={<Feather name="plus" size={18} color="#fff" />}
+          title="Nova Tarefa"
           accessibilityLabel="Adicionar nova tarefa"
-        >
-          <Text style={styles.primaryButtonText}>+ Nova Tarefa</Text>
-        </TouchableOpacity>
-
-        {/* Placeholder para filtros (Bottom Sheet será feito no passo 6) */}
-        <TouchableOpacity
-          style={styles.secondaryButton}
-          onPress={() => {
-            // TODO: abrir bottom sheet de filtros
-          }}
+          onPress={() => navigation.navigate("TaskForm")}
+        />
+        <CustomButton
+          variant="secondary"
+          icon={<Feather name="filter" size={18} color="#00465c" />}
+          title="Filtros"
           accessibilityLabel="Abrir filtros"
-        >
-          <Feather name="filter" size={18} color="#00465c" />
-          <Text style={styles.secondaryButtonText}>Filtros</Text>
-        </TouchableOpacity>
+          onPress={() => {}}
+        />
       </View>
 
       <FlatList
@@ -170,26 +166,6 @@ export default function TaskListScreen() {
 const styles = StyleSheet.create({
   container: { flex: 1, padding: 16, backgroundColor: "#f2f2f2" },
   hStack: { flexDirection: "row", gap: 8, marginBottom: 16 },
-  primaryButton: {
-    flex: 1,
-    backgroundColor: "#00465c",
-    padding: 12,
-    borderRadius: 8,
-  },
-  primaryButtonText: {
-    color: "#fff",
-    fontWeight: "bold",
-    textAlign: "center",
-  },
-  secondaryButton: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 6,
-    backgroundColor: "#e6f2f6",
-    paddingHorizontal: 12,
-    borderRadius: 8,
-  },
-  secondaryButtonText: { color: "#00465c", fontWeight: "600" },
 
   taskItem: {
     padding: 12,

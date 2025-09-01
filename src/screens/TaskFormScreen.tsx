@@ -9,6 +9,7 @@ import {
   Platform,
   ScrollView,
   StyleSheet,
+  Switch,
   Text,
   TextInput,
   View,
@@ -19,6 +20,7 @@ import { RootStackParamList } from "../navigation";
 
 import { useTasksStore } from "../store/tasksStore";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
+import UserSelect from "../components/UserSelect";
 
 const taskSchema = z.object({
   title: z.string().min(1, "Título obrigatório"),
@@ -77,7 +79,7 @@ export default function TaskFormScreen() {
         contentContainerStyle={styles.container}
         keyboardShouldPersistTaps="handled"
       >
-        <Text>Título</Text>
+        <Text style={styles.label}>Título</Text>
         <Controller
           control={control}
           name="title"
@@ -94,36 +96,35 @@ export default function TaskFormScreen() {
           <Text style={styles.error}>{errors.title.message}</Text>
         )}
 
-        <Text>Responsável</Text>
+        <Text style={styles.label}>Responsável</Text>
         <Controller
           control={control}
           name="assigneeId"
           render={({ field: { onChange, value } }) => (
-            <Picker
-              selectedValue={value}
-              onValueChange={onChange}
-              style={styles.picker}
-            >
-              <Picker.Item label="Selecione..." value="" />
-              {users.map((user) => (
-                <Picker.Item key={user.id} label={user.name} value={user.id} />
-              ))}
-            </Picker>
+            <UserSelect users={users} value={value} onChange={onChange} />
           )}
         />
         {errors.assigneeId && (
           <Text style={styles.error}>{errors.assigneeId.message}</Text>
         )}
 
-        <Text>Status</Text>
+        <Text style={styles.label}>Status</Text>
         <Controller
           control={control}
           name="status"
           render={({ field: { onChange, value } }) => (
-            <Picker selectedValue={value} onValueChange={onChange}>
-              <Picker.Item label="PENDENTE" value={false} />
-              <Picker.Item label="CONCLUÍDA" value={true} />
-            </Picker>
+            <View
+              style={{
+                flexDirection: "row",
+                alignItems: "center",
+                marginVertical: 8,
+              }}
+            >
+              <Switch value={value} onValueChange={onChange} />
+              <Text style={{ marginLeft: 8 }}>
+                {value ? "Concluída" : "Pendente"}
+              </Text>
+            </View>
           )}
         />
 
@@ -143,21 +144,29 @@ export default function TaskFormScreen() {
 
 const styles = StyleSheet.create({
   container: { padding: 16 },
+  label: { fontWeight: "bold", marginBottom: 4 },
   input: {
     borderWidth: 1,
     borderColor: "#ccc",
-    padding: 8,
+    borderRadius: 6,
+    paddingHorizontal: 12,
+    paddingVertical: 14,
     marginBottom: 12,
-    borderRadius: 4,
+    backgroundColor: "#fff",
   },
-  picker: {
+  pickerContainer: {
+    borderWidth: 1,
+    borderColor: "#ccc",
+    borderRadius: 6,
     marginBottom: 12,
+    backgroundColor: "#fff",
   },
   error: {
     color: "red",
     marginBottom: 8,
   },
   footer: {
+    marginVertical: 16,
     gap: 8,
-  }
+  },
 });

@@ -11,6 +11,7 @@ import {
   StyleSheet,
   Text,
   TextInput,
+  View,
 } from "react-native";
 import { z } from "zod";
 import { RouteProp, useNavigation, useRoute } from "@react-navigation/native";
@@ -35,7 +36,7 @@ export default function TaskFormScreen() {
   const route = useRoute<TaskFormRouteProp>();
   const navigation = useNavigation<NavigationProp>();
   const { taskId } = route.params || {};
-  const { tasks, users, addTask, updateTask } = useTasksStore();
+  const { tasks, users, addTask, updateTask, deleteTask } = useTasksStore();
   const taskToEdit = tasks.find((t) => t.id === taskId);
 
   const {
@@ -57,6 +58,12 @@ export default function TaskFormScreen() {
     } else {
       await addTask(data);
     }
+    navigation.navigate("TaskList", { refresh: true });
+  };
+
+  const handleDeleteTask = () => {
+    if (!taskToEdit) return;
+    deleteTask(taskToEdit!.id);
     navigation.navigate("TaskList", { refresh: true });
   };
 
@@ -119,10 +126,16 @@ export default function TaskFormScreen() {
             </Picker>
           )}
         />
-        <Button
-          title={taskToEdit ? "Salvar" : "Adicionar"}
-          onPress={handleSubmit(onSubmit)}
-        />
+
+        <View style={styles.footer}>
+          <Button
+            title={taskToEdit ? "Salvar" : "Adicionar"}
+            onPress={handleSubmit(onSubmit)}
+          />
+          {taskToEdit && (
+            <Button title="Excluir" color="gray" onPress={handleDeleteTask} />
+          )}
+        </View>
       </ScrollView>
     </KeyboardAvoidingView>
   );
@@ -144,4 +157,7 @@ const styles = StyleSheet.create({
     color: "red",
     marginBottom: 8,
   },
+  footer: {
+    gap: 8,
+  }
 });

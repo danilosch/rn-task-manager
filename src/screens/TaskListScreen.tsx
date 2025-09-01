@@ -85,14 +85,6 @@ export default function TaskListScreen() {
           >
             <Feather name={item.status ? "check-square" : "square"} size={22} />
           </TouchableOpacity>
-
-          <TouchableOpacity
-            onPress={() => deleteTask(item.id)}
-            accessibilityLabel="Excluir tarefa"
-            style={styles.iconBtn}
-          >
-            <Feather name="trash-2" size={22} />
-          </TouchableOpacity>
         </View>
       </View>
     </Pressable>

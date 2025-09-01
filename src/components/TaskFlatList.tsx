@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import {
   ActivityIndicator,
   Dimensions,
@@ -10,7 +10,9 @@ import {
   Text,
   TouchableOpacity,
   View,
+  Alert,
 } from "react-native";
+import NetInfo from "@react-native-community/netinfo";
 import { Feather } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
@@ -25,6 +27,7 @@ const screenHeight = Dimensions.get("window").height;
 
 export default function TaskFlatList() {
   const navigation = useNavigation<NavigationProp>();
+  const [offline, setOffline] = useState(false);
 
   const {
     fetchMoreTasks,
@@ -37,6 +40,31 @@ export default function TaskFlatList() {
   } = useTasksStore();
 
   const filteredTasks = getFilteredTasks();
+
+  // Monitorar estado da rede
+  useEffect(() => {
+    const unsubscribe = NetInfo.addEventListener((state) => {
+      setOffline(!state.isConnected);
+    });
+    return unsubscribe;
+  }, []);
+
+  const handleRefresh = async () => {
+    try {
+      await fetchTasks();
+    } catch (error) {
+      Alert.alert("Offline", "Não foi possível atualizar tarefas.");
+    }
+  };
+
+  const handleToggleStatus = (taskId: string) => {
+    // Atualiza local imediatamente
+    toggleTaskStatus(taskId);
+
+    if (offline) {
+      Alert.alert("Offline", "Alteração salva localmente e será sincronizada.");
+    }
+  };
 
   const renderItem = ({ item }: { item: Task }) => {
     const user = users.find((u) => u.id === item.userId);
@@ -66,7 +94,7 @@ export default function TaskFlatList() {
 
           <View style={styles.colRight}>
             <TouchableOpacity
-              onPress={() => toggleTaskStatus(item.id)}
+              onPress={() => handleToggleStatus(item.id)}
               accessibilityLabel={
                 item.status ? "Marcar como pendente" : "Marcar como concluída"
               }
@@ -91,17 +119,17 @@ export default function TaskFlatList() {
       contentContainerStyle={{ paddingBottom: 100 }}
       onEndReachedThreshold={0.4}
       onEndReached={() => {
-        if (hasMore && !loading) fetchMoreTasks();
+        if (hasMore && !loading && !offline) fetchMoreTasks();
       }}
       onContentSizeChange={(_, contentHeight) => {
-        if (contentHeight < screenHeight && useTasksStore.getState().hasMore) {
+        if (contentHeight < screenHeight && useTasksStore.getState().hasMore && !offline) {
           fetchMoreTasks();
         }
       }}
       refreshControl={
         <RefreshControl
           refreshing={loading && !hasMore}
-          onRefresh={fetchTasks}
+          onRefresh={handleRefresh}
         />
       }
       ListFooterComponent={
@@ -114,7 +142,9 @@ export default function TaskFlatList() {
       ListEmptyComponent={
         !loading ? (
           <View style={styles.empty}>
-            <Text style={styles.emptyText}>Nenhuma tarefa encontrada</Text>
+            <Text style={styles.emptyText}>
+              {offline ? "Offline: Nenhuma tarefa carregada" : "Nenhuma tarefa encontrada"}
+            </Text>
           </View>
         ) : null
       }

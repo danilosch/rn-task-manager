@@ -38,7 +38,13 @@ yarn install
 npm install
 ```
 
-3. Inicie o projeto Expo:
+3. Configure a URL da API (mockAPI) no .env.local:
+
+```bash
+cp .env.example .env.local
+```
+
+4. Inicie o projeto Expo:
 
 ```bash
 npx expo start

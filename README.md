@@ -55,11 +55,11 @@ npx expo start
 ```
 /src
   /components  # Componentes React reutilizáveis
+  /navigation  # Configuração do React Navigation
   /screens     # Telas do aplicativo
   /store       # Zustand store
   /services    # Configuração do Axios e APIs
   /types       # Tipagens TypeScript
-  /navigation  # Configuração do React Navigation
 ```
 
 ## Uso

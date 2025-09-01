@@ -8,6 +8,7 @@ import {
   Image,
   StyleSheet,
 } from "react-native";
+
 import { User } from "../types";
 
 type Props = {

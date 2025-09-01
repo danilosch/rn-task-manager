@@ -1,10 +1,5 @@
 import React from "react";
-
-import { zodResolver } from "@hookform/resolvers/zod";
-import { Picker } from "@react-native-picker/picker";
-import { Controller, useForm } from "react-hook-form";
 import {
-  Button,
   KeyboardAvoidingView,
   Platform,
   ScrollView,
@@ -14,15 +9,17 @@ import {
   TextInput,
   View,
 } from "react-native";
-import { z } from "zod";
-import { RouteProp, useNavigation, useRoute } from "@react-navigation/native";
-import { RootStackParamList } from "../navigation";
 import { Feather } from "@expo/vector-icons";
-
-import { useTasksStore } from "../store/tasksStore";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { RouteProp, useNavigation, useRoute } from "@react-navigation/native";
+import { Controller, useForm } from "react-hook-form";
+import { z } from "zod";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
-import UserSelect from "../components/UserSelect";
+
 import CustomButton from "../components/CustomButton";
+import UserSelect from "../components/UserSelect";
+import { RootStackParamList } from "../navigation";
+import { useTasksStore } from "../store/tasksStore";
 
 const taskSchema = z.object({
   title: z.string().min(1, "Título obrigatório"),
@@ -125,7 +122,7 @@ export default function TaskFormScreen() {
               <Switch
                 value={value}
                 onValueChange={onChange}
-                thumbColor={"#00465c"}
+                trackColor={{ false: "#ccc", true: "#00465c" }}
               />
               <Text style={{ marginLeft: 8 }}>
                 {value ? "Concluída" : "Pendente"}

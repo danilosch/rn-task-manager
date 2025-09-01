@@ -1,8 +1,9 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { StyleSheet, View } from "react-native";
 import { RouteProp, useNavigation, useRoute } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 
+import TaskFiltersModal from "../components/TaskFiltersModal";
 import TaskFlatList from "../components/TaskFlatList";
 import TaskHeaderActions from "../components/TaskHeaderActions";
 import { RootStackParamList } from "../navigation";
@@ -16,6 +17,8 @@ type TaskListScreenParams = {
 
 export default function TaskListScreen() {
   const { fetchTasks, fetchUsers } = useTasksStore();
+
+  const [filtersVisible, setFiltersVisible] = useState(false);
 
   const navigation = useNavigation<NavigationProp>();
   const route =
@@ -35,8 +38,12 @@ export default function TaskListScreen() {
 
   return (
     <View style={styles.container}>
-      <TaskHeaderActions />
+      <TaskHeaderActions onOpenFilters={() => setFiltersVisible(true)} />
       <TaskFlatList />
+      <TaskFiltersModal
+        visible={filtersVisible}
+        onClose={() => setFiltersVisible(false)}
+      />
     </View>
   );
 }

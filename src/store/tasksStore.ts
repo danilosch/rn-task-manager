@@ -125,7 +125,7 @@ export const useTasksStore = create<TasksStore>((set, get) => ({
       const { data: newTask } = await axios.post<Task>("/tasks", {
         ...task,
         createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
+        updatedAt: null,
       });
       // Adiciona ao topo localmente
       set({ tasks: [newTask, ...get().tasks] });

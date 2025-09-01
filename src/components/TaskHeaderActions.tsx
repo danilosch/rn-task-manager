@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useRef } from "react";
 import { StyleSheet, View } from "react-native";
 import { Feather } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
@@ -9,7 +9,11 @@ import CustomButton from "./CustomButton";
 
 type NavigationProp = NativeStackNavigationProp<RootStackParamList, "TaskList">;
 
-export default function TaskHeaderActions() {
+type Props = {
+  onOpenFilters: () => void;
+};
+
+export default function TaskHeaderActions({ onOpenFilters }: Props) {
   const navigation = useNavigation<NavigationProp>();
 
   return (
@@ -26,7 +30,7 @@ export default function TaskHeaderActions() {
         icon={<Feather name="filter" size={18} color="#00465c" />}
         title="Filtros"
         accessibilityLabel="Abrir filtros"
-        onPress={() => {}}
+        onPress={onOpenFilters}
       />
     </View>
   );

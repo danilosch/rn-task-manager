@@ -1,10 +1,15 @@
 import { FlatCompat } from "@eslint/eslintrc";
-import { configs } from "@eslint/js";
-import { browser, node, es2021 } from "globals";
+import eslintjs from "@eslint/js";
+import globals from "globals";
+import path from 'path';
+import { fileURLToPath } from 'url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 const compat = new FlatCompat({
   baseDirectory: __dirname,
-  recommendedConfig: configs.recommended,
+  recommendedConfig: eslintjs.configs.recommended,
 });
 
 export default [
@@ -19,9 +24,9 @@ export default [
     files: ["**/*.{js,jsx,ts,tsx}"],
     languageOptions: {
       globals: {
-        ...browser,
-        ...node,
-        ...es2021,
+        ...globals.browser,
+        ...globals.node,
+        ...globals.es2021,
         "__DEV__": "readonly",
       },
     },

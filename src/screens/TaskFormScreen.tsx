@@ -43,7 +43,7 @@ export default function TaskFormScreen() {
       }
 
       navigation.navigate("TaskList", { refresh: true });
-    } catch (error) {
+    } catch {
       Alert.alert("Erro", "Não foi possível salvar a tarefa.");
     }
   };
@@ -60,7 +60,7 @@ export default function TaskFormScreen() {
         );
       }
       navigation.navigate("TaskList", { refresh: true });
-    } catch (error) {
+    } catch {
       Alert.alert("Erro", "Não foi possível excluir a tarefa.");
     }
   };

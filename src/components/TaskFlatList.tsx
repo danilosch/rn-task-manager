@@ -52,7 +52,7 @@ export default function TaskFlatList() {
   const handleRefresh = async () => {
     try {
       await fetchTasks();
-    } catch (error) {
+    } catch {
       Alert.alert("Offline", "Não foi possível atualizar tarefas.");
     }
   };

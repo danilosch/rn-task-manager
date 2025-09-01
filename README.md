@@ -26,8 +26,8 @@ Este é um aplicativo de gerenciamento de tarefas desenvolvido com **React Nativ
 1. Clone o repositório:
 
 ```bash
-git clone <URL_DO_REPOSITORIO>
-cd <PASTA_DO_PROJETO>
+git clone git@github.com:danilosch/rn-task-manager.git
+cd rn-task-manager
 ```
 
 2. Instale as dependências:

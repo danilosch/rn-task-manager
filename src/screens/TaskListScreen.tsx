@@ -12,12 +12,16 @@ import {
 } from "react-native";
 import { useTasksStore } from "../store/tasksStore";
 import { Task } from "../types";
-import { useNavigation } from "@react-navigation/native";
+import { RouteProp, useNavigation, useRoute } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { RootStackParamList } from "../navigation";
 import { Feather } from "@expo/vector-icons";
 
 type NavigationProp = NativeStackNavigationProp<RootStackParamList, "TaskList">;
+
+type TaskListScreenParams = {
+  refresh?: boolean;
+};
 
 const screenHeight = Dimensions.get("window").height;
 
@@ -35,27 +39,26 @@ export default function TaskListScreen() {
   } = useTasksStore();
 
   const navigation = useNavigation<NavigationProp>();
+  const route =
+    useRoute<RouteProp<Record<string, TaskListScreenParams>, string>>();
 
   useEffect(() => {
     fetchUsers();
     fetchTasks(); // carrega 1ª página (reset)
   }, []);
 
-  const onRefresh = useCallback(() => {
-    fetchTasks(); // reset e recarrega
-  }, [fetchTasks]);
-
-  const onSubmitSuccess = useCallback(() => {
-    onRefresh();
-    navigation.goBack();
-  }, [onRefresh, navigation]);
+  useEffect(() => {
+    if (route.params?.refresh) {
+      fetchTasks();
+      navigation.setParams({ refresh: false });
+    }
+  }, [route.params?.refresh]);
 
   const renderItem = ({ item }: { item: Task }) => (
     <Pressable
       onPress={() =>
         navigation.navigate("TaskForm", {
           taskId: item.id,
-          onSubmitSuccess,
         })
       }
       accessibilityRole="button"
@@ -144,7 +147,7 @@ export default function TaskListScreen() {
         refreshControl={
           <RefreshControl
             refreshing={loading && !hasMore}
-            onRefresh={onRefresh}
+            onRefresh={fetchTasks}
           />
         }
         ListFooterComponent={

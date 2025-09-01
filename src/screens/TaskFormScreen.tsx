@@ -13,10 +13,11 @@ import {
   TextInput,
 } from "react-native";
 import { z } from "zod";
-import { RouteProp, useRoute } from "@react-navigation/native";
+import { RouteProp, useNavigation, useRoute } from "@react-navigation/native";
 import { RootStackParamList } from "../navigation";
 
 import { useTasksStore } from "../store/tasksStore";
+import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 
 const taskSchema = z.object({
   title: z.string().min(1, "Título obrigatório"),
@@ -28,9 +29,12 @@ type TaskFormData = z.infer<typeof taskSchema>;
 
 type TaskFormRouteProp = RouteProp<RootStackParamList, "TaskForm">;
 
+type NavigationProp = NativeStackNavigationProp<RootStackParamList, "TaskForm">;
+
 export default function TaskFormScreen() {
   const route = useRoute<TaskFormRouteProp>();
-  const { taskId, onSubmitSuccess } = route.params || {};
+  const navigation = useNavigation<NavigationProp>();
+  const { taskId } = route.params || {};
   const { tasks, users, addTask, updateTask } = useTasksStore();
   const taskToEdit = tasks.find((t) => t.id === taskId);
 
@@ -53,7 +57,7 @@ export default function TaskFormScreen() {
     } else {
       await addTask(data);
     }
-    onSubmitSuccess?.();
+    navigation.navigate("TaskList", { refresh: true });
   };
 
   return (

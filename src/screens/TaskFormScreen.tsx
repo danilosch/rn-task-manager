@@ -1,33 +1,10 @@
 import React from "react";
-import {
-  KeyboardAvoidingView,
-  Platform,
-  ScrollView,
-  StyleSheet,
-  Switch,
-  Text,
-  TextInput,
-  View,
-} from "react-native";
-import { Feather } from "@expo/vector-icons";
-import { zodResolver } from "@hookform/resolvers/zod";
 import { RouteProp, useNavigation, useRoute } from "@react-navigation/native";
-import { Controller, useForm } from "react-hook-form";
-import { z } from "zod";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 
-import CustomButton from "../components/CustomButton";
-import UserSelect from "../components/UserSelect";
+import TaskForm, { TaskFormData } from "../components/TaskForm";
 import { RootStackParamList } from "../navigation";
 import { useTasksStore } from "../store/tasksStore";
-
-const taskSchema = z.object({
-  title: z.string().min(1, "Título obrigatório"),
-  userId: z.string().min(1, "Selecione um responsável"),
-  status: z.boolean(),
-});
-
-type TaskFormData = z.infer<typeof taskSchema>;
 
 type TaskFormRouteProp = RouteProp<RootStackParamList, "TaskForm">;
 
@@ -37,23 +14,10 @@ export default function TaskFormScreen() {
   const route = useRoute<TaskFormRouteProp>();
   const navigation = useNavigation<NavigationProp>();
   const { taskId } = route.params || {};
-  const { tasks, users, addTask, updateTask, deleteTask } = useTasksStore();
+  const { tasks, addTask, updateTask, deleteTask } = useTasksStore();
   const taskToEdit = tasks.find((t) => t.id === taskId);
 
-  const {
-    control,
-    handleSubmit,
-    formState: { errors },
-  } = useForm<TaskFormData>({
-    resolver: zodResolver(taskSchema),
-    defaultValues: {
-      title: taskToEdit?.title || "",
-      userId: taskToEdit?.userId || "",
-      status: taskToEdit?.status || false,
-    },
-  });
-
-  const onSubmit = async (data: TaskFormData) => {
+  const handleSubmit = async (data: TaskFormData) => {
     if (taskToEdit) {
       await updateTask({ ...taskToEdit, ...data });
     } else {
@@ -62,122 +26,11 @@ export default function TaskFormScreen() {
     navigation.navigate("TaskList", { refresh: true });
   };
 
-  const handleDeleteTask = () => {
+  const handleDelete = () => {
     if (!taskToEdit) return;
     deleteTask(taskToEdit!.id);
     navigation.navigate("TaskList", { refresh: true });
   };
 
-  return (
-    <KeyboardAvoidingView
-      style={{ flex: 1 }}
-      behavior={Platform.OS === "ios" ? "padding" : undefined}
-      keyboardVerticalOffset={80} // ajuste se o header sobrepor
-    >
-      <ScrollView
-        contentContainerStyle={styles.container}
-        keyboardShouldPersistTaps="handled"
-      >
-        <Text style={styles.label}>Título</Text>
-        <Controller
-          control={control}
-          name="title"
-          render={({ field: { onChange, value } }) => (
-            <TextInput
-              style={styles.input}
-              placeholder="Título da tarefa"
-              value={value}
-              onChangeText={onChange}
-            />
-          )}
-        />
-        {errors.title && (
-          <Text style={styles.error}>{errors.title.message}</Text>
-        )}
-
-        <Text style={styles.label}>Responsável</Text>
-        <Controller
-          control={control}
-          name="userId"
-          render={({ field: { onChange, value } }) => (
-            <UserSelect users={users} value={value} onChange={onChange} />
-          )}
-        />
-        {errors.userId && (
-          <Text style={styles.error}>{errors.userId.message}</Text>
-        )}
-
-        <Text style={styles.label}>Status</Text>
-        <Controller
-          control={control}
-          name="status"
-          render={({ field: { onChange, value } }) => (
-            <View
-              style={{
-                flexDirection: "row",
-                alignItems: "center",
-                marginVertical: 8,
-              }}
-            >
-              <Switch
-                value={value}
-                onValueChange={onChange}
-                trackColor={{ false: "#ccc", true: "#00465c" }}
-              />
-              <Text style={{ marginLeft: 8 }}>
-                {value ? "Concluída" : "Pendente"}
-              </Text>
-            </View>
-          )}
-        />
-
-        <View style={styles.footer}>
-          <CustomButton
-            icon={<Feather name="save" size={18} color="#fff" />}
-            title={taskToEdit ? "Salvar" : "Adicionar"}
-            accessibilityLabel="Salvar Tarefa"
-            onPress={handleSubmit(onSubmit)}
-          />
-          {taskToEdit && (
-            <CustomButton
-              variant="secondary"
-              icon={<Feather name="trash" size={18} color="#00465c" />}
-              title="Excluir"
-              accessibilityLabel="Excluir Tarefa"
-              onPress={handleDeleteTask}
-            />
-          )}
-        </View>
-      </ScrollView>
-    </KeyboardAvoidingView>
-  );
+  return <TaskForm taskId={taskId} onSubmit={handleSubmit} onDelete={handleDelete} />;
 }
-
-const styles = StyleSheet.create({
-  container: { padding: 16 },
-  label: { fontWeight: "bold", marginBottom: 4 },
-  input: {
-    borderWidth: 1,
-    borderColor: "#ccc",
-    borderRadius: 6,
-    paddingHorizontal: 12,
-    paddingVertical: 14,
-    marginBottom: 12,
-    backgroundColor: "#fff",
-  },
-  pickerContainer: {
-    borderWidth: 1,
-    borderColor: "#ccc",
-    borderRadius: 6,
-    marginBottom: 12,
-    backgroundColor: "#fff",
-  },
-  error: {
-    color: "red",
-    marginBottom: 8,
-  },
-  footer: {
-    marginVertical: 16,
-    gap: 8,
-  },
-});

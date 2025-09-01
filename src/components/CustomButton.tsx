@@ -1,5 +1,5 @@
 import React from "react";
-import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { Text, StyleSheet, TouchableOpacity } from "react-native";
 
 type CustomButtonProps = {
   variant?: "primary" | "secondary";
@@ -41,13 +41,13 @@ export default function CustomButton({
 
 const styles = StyleSheet.create({
   button: {
+    alignItems: "center",
+    borderRadius: 8,
     flex: 1,
     flexDirection: "row",
-    justifyContent: "center",
-    alignItems: "center",
     gap: 6,
+    justifyContent: "center",
     padding: 12,
-    borderRadius: 8,
   },
   primaryButton: {
     backgroundColor: "#00465c",
@@ -58,8 +58,8 @@ const styles = StyleSheet.create({
   },
   secondaryButton: {
     backgroundColor: "#e6f2f6",
-    borderWidth: 1,
     borderColor: "#00465c",
+    borderWidth: 1,
   },
   secondaryButtonText: { color: "#00465c", fontWeight: "600" },
 });

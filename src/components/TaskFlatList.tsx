@@ -123,20 +123,20 @@ export default function TaskFlatList() {
 }
 
 const styles = StyleSheet.create({
-  taskItem: {
-    padding: 12,
-    backgroundColor: "#fff",
-    marginBottom: 8,
-    borderRadius: 8,
-  },
-  row: { flexDirection: "row", alignItems: "center" },
+  assignee: { alignItems: "center", flexDirection: "row", marginTop: 4 },
+  avatar: { borderRadius: 14, height: 20, marginRight: 8, width: 20 },
   colLeft: { flex: 1, paddingRight: 8 },
-  colRight: { flexDirection: "row", alignItems: "center", gap: 8 },
-  title: { fontSize: 16, fontWeight: "bold", color: "#1a1a1a" },
-  assignee: { flexDirection: "row", alignItems: "center", marginTop: 4 },
-  avatar: { width: 20, height: 20, borderRadius: 14, marginRight: 8 },
-  iconBtn: { padding: 6 },
-  footer: { paddingVertical: 16 },
-  empty: { paddingTop: 48, alignItems: "center" },
+  colRight: { alignItems: "center", flexDirection: "row", gap: 8 },
+  empty: { alignItems: "center", paddingTop: 48 },
   emptyText: { color: "#666" },
+  footer: { paddingVertical: 16 },
+  iconBtn: { padding: 6 },
+  row: { alignItems: "center", flexDirection: "row" },
+  taskItem: {
+    backgroundColor: "#fff",
+    borderRadius: 8,
+    marginBottom: 8,
+    padding: 12,
+  },
+  title: { color: "#1a1a1a", fontSize: 16, fontWeight: "bold" },
 });

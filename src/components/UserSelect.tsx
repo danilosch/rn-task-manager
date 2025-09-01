@@ -84,37 +84,37 @@ export default function UserSelect({ users, value, onChange }: Props) {
 }
 
 const styles = StyleSheet.create({
-  selectButton: {
-    borderWidth: 1,
-    borderColor: "#ccc",
-    borderRadius: 6,
+  avatar: { borderRadius: 14, height: 28, marginRight: 8, width: 28 },
+  cancelBtn: {
+    alignItems: "center",
     padding: 12,
-    marginBottom: 12,
-    backgroundColor: "#fff",
-  },
-  row: { flexDirection: "row", alignItems: "center", gap: 8 },
-  avatar: { width: 28, height: 28, borderRadius: 14, marginRight: 8 },
-  modalOverlay: {
-    flex: 1,
-    justifyContent: "flex-end",
-    backgroundColor: "rgba(0,0,0,0.4)",
   },
   modalContent: {
     backgroundColor: "#fff",
-    padding: 16,
     borderTopLeftRadius: 16,
     borderTopRightRadius: 16,
     maxHeight: "60%",
+    padding: 16,
+  },
+  modalOverlay: {
+    backgroundColor: "rgba(0,0,0,0.4)",
+    flex: 1,
+    justifyContent: "flex-end",
+  },
+  row: { alignItems: "center", flexDirection: "row", gap: 8 },
+  selectButton: {
+    backgroundColor: "#fff",
+    borderColor: "#ccc",
+    borderRadius: 6,
+    borderWidth: 1,
+    marginBottom: 12,
+    padding: 12,
   },
   userItem: {
-    flexDirection: "row",
     alignItems: "center",
-    padding: 12,
     borderBottomWidth: 1,
     borderColor: "#eee",
-  },
-  cancelBtn: {
+    flexDirection: "row",
     padding: 12,
-    alignItems: "center",
   },
 });

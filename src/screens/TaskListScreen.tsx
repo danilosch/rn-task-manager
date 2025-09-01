@@ -24,14 +24,14 @@ export default function TaskListScreen() {
   useEffect(() => {
     fetchUsers();
     fetchTasks(); // carrega 1ª página (reset)
-  }, []);
+  }, [fetchTasks, fetchUsers]);
 
   useEffect(() => {
     if (route.params?.refresh) {
       fetchTasks();
       navigation.setParams({ refresh: false });
     }
-  }, [route.params?.refresh]);
+  }, [route.params?.refresh, fetchTasks, navigation]);
 
   return (
     <View style={styles.container}>
@@ -42,5 +42,5 @@ export default function TaskListScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, padding: 16, backgroundColor: "#f2f2f2" },
+  container: { backgroundColor: "#f2f2f2", flex: 1, padding: 16 },
 });

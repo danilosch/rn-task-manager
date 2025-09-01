@@ -115,7 +115,7 @@ export const useTasksStore = create<TasksStore>((set, get) => ({
       const userMatch =
         filters.userIds.length === 0
           ? true
-          : filters.userIds.includes(task.assigneeId);
+          : filters.userIds.includes(task.userId);
       return statusMatch && userMatch;
     });
   },

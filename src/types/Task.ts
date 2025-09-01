@@ -2,7 +2,7 @@ export type Task = {
   id: string;
   title: string;
   status: boolean;
-  assigneeId: string;
+  userId: string;
   createdAt: string;
   updatedAt: string;
 };

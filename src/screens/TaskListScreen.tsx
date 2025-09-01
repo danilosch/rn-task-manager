@@ -55,7 +55,7 @@ export default function TaskListScreen() {
   }, [route.params?.refresh]);
 
   const renderItem = ({ item }: { item: Task }) => {
-    const user = users.find((u) => u.id === item.assigneeId);
+    const user = users.find((u) => u.id === item.userId);
     return (
       <Pressable
         onPress={() =>
@@ -202,7 +202,7 @@ const styles = StyleSheet.create({
   colRight: { flexDirection: "row", alignItems: "center", gap: 8 },
   title: { fontSize: 16, fontWeight: "bold", color: "#1a1a1a" },
   assignee: { flexDirection: "row", alignItems: "center", marginTop: 4 },
-  avatar: { width: 16, height: 16, borderRadius: 14, marginRight: 8 },
+  avatar: { width: 20, height: 20, borderRadius: 14, marginRight: 8 },
   iconBtn: { padding: 6 },
   footer: { paddingVertical: 16 },
   empty: { paddingTop: 48, alignItems: "center" },

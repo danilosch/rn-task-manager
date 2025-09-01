@@ -24,7 +24,7 @@ import UserSelect from "../components/UserSelect";
 
 const taskSchema = z.object({
   title: z.string().min(1, "Título obrigatório"),
-  assigneeId: z.string().min(1, "Selecione um responsável"),
+  userId: z.string().min(1, "Selecione um responsável"),
   status: z.boolean(),
 });
 
@@ -49,7 +49,7 @@ export default function TaskFormScreen() {
     resolver: zodResolver(taskSchema),
     defaultValues: {
       title: taskToEdit?.title || "",
-      assigneeId: taskToEdit?.assigneeId || "",
+      userId: taskToEdit?.userId || "",
       status: taskToEdit?.status || false,
     },
   });
@@ -99,13 +99,13 @@ export default function TaskFormScreen() {
         <Text style={styles.label}>Responsável</Text>
         <Controller
           control={control}
-          name="assigneeId"
+          name="userId"
           render={({ field: { onChange, value } }) => (
             <UserSelect users={users} value={value} onChange={onChange} />
           )}
         />
-        {errors.assigneeId && (
-          <Text style={styles.error}>{errors.assigneeId.message}</Text>
+        {errors.userId && (
+          <Text style={styles.error}>{errors.userId.message}</Text>
         )}
 
         <Text style={styles.label}>Status</Text>

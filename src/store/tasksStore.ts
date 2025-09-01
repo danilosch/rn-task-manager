@@ -11,7 +11,11 @@ type TasksFilter = {
 };
 
 type PendingOperation =
-  | { type: "add"; task: Omit<Task, "id" | "createdAt" | "updatedAt"> }
+  | {
+      type: "add";
+      task: Omit<Task, "id" | "createdAt" | "updatedAt">;
+      tempId: string;
+    }
   | { type: "update"; task: Task }
   | { type: "delete"; taskId: string };
 
@@ -80,11 +84,10 @@ export const useTasksStore = create<TasksStore>()(
 
         fetchUsers: async () => {
           try {
-            const params = { sortBy: "name", order: "asc" };
-            const { data: users } = await axios.get<User[]>("/users", {
-              params,
+            const { data } = await axios.get<User[]>("/users", {
+              params: { sortBy: "name", order: "asc" },
             });
-            set({ users });
+            set({ users: data });
           } catch (error) {
             console.error("Erro ao buscar users:", error);
           }
@@ -92,15 +95,11 @@ export const useTasksStore = create<TasksStore>()(
 
         fetchTasks: async () => {
           const { limit } = get();
-          set({ loading: true, page: 1, hasMore: true, tasks: [] });
+          set({ loading: true, page: 1, hasMore: true });
           try {
-            const params = {
-              page: 1,
-              limit,
-              sortBy: "createdAt",
-              order: "desc",
-            };
-            const { data } = await axios.get<Task[]>("/tasks", { params });
+            const { data } = await axios.get<Task[]>("/tasks", {
+              params: { page: 1, limit, sortBy: "createdAt", order: "desc" },
+            });
             set({ tasks: data, page: 2, hasMore: data.length === limit });
           } catch (error) {
             console.error("Erro ao buscar tasks:", error);
@@ -115,18 +114,13 @@ export const useTasksStore = create<TasksStore>()(
 
           set({ loading: true });
           try {
-            const params = { page, limit, sortBy: "createdAt", order: "desc" };
-            const { data } = await axios.get<Task[]>("/tasks", { params });
-
-            // Evita duplicação
-            const newTasks = data.filter(
-              (t) => !tasks.some((existing) => existing.id === t.id)
-            );
-
+            const { data } = await axios.get<Task[]>("/tasks", {
+              params: { page, limit, sortBy: "createdAt", order: "desc" },
+            });
             set({
-              tasks: [...tasks, ...newTasks],
+              tasks: [...tasks, ...data],
               page: page + 1,
-              hasMore: newTasks.length === limit,
+              hasMore: data.length === limit,
             });
           } catch (error) {
             console.error("Erro ao buscar mais tasks:", error);
@@ -150,32 +144,35 @@ export const useTasksStore = create<TasksStore>()(
 
         addTask: async (task) => {
           const { tasks, online, pendingOps } = get();
+          const tempId = `temp-${Date.now()}`;
 
-          if (!online) {
-            const tempId = `temp-${Date.now()}-${Math.random()
-              .toString(36)
-              .substr(2, 5)}`;
-            const newTask: Task = {
-              ...task,
-              id: tempId,
-              createdAt: new Date().toISOString(),
-              updatedAt: new Date().toISOString(),
-              status: false,
-            };
-            set({
-              tasks: [newTask, ...tasks],
-              pendingOps: [...pendingOps, { type: "add", task }],
-            });
-            return;
-          }
+          const newTask: Task = {
+            ...task,
+            id: tempId,
+            createdAt: new Date().toISOString(),
+            updatedAt: new Date().toISOString(),
+            status: false,
+          };
+
+          set({
+            tasks: [newTask, ...tasks],
+            pendingOps: online
+              ? pendingOps
+              : [...pendingOps, { type: "add", task, tempId }],
+          });
+
+          if (!online) return;
 
           try {
-            const { data: newTask } = await axios.post<Task>("/tasks", {
+            const { data: created } = await axios.post<Task>("/tasks", {
               ...task,
               createdAt: new Date().toISOString(),
               updatedAt: null,
             });
-            set({ tasks: [newTask, ...tasks] });
+            // Substitui o tempId pelo id real
+            set({
+              tasks: get().tasks.map((t) => (t.id === tempId ? created : t)),
+            });
           } catch (error) {
             console.error("Erro ao adicionar task:", error);
           }
@@ -191,14 +188,12 @@ export const useTasksStore = create<TasksStore>()(
           }
 
           try {
-            const { data: updatedTask } = await axios.put<Task>(
+            const { data: updated } = await axios.put<Task>(
               `/tasks/${task.id}`,
               { ...task, updatedAt: new Date().toISOString() }
             );
             set({
-              tasks: get().tasks.map((t) =>
-                t.id === task.id ? updatedTask : t
-              ),
+              tasks: get().tasks.map((t) => (t.id === task.id ? updated : t)),
             });
           } catch (error) {
             console.error("Erro ao atualizar task:", error);
@@ -207,23 +202,41 @@ export const useTasksStore = create<TasksStore>()(
 
         deleteTask: async (taskId) => {
           const { tasks, online, pendingOps } = get();
+
+          // Remove da lista local imediatamente
           set({ tasks: tasks.filter((t) => t.id !== taskId) });
 
+          // Se for uma task temporária (offline) apenas remove da fila se existia
+          if (taskId.startsWith("temp-")) {
+            set({
+              pendingOps: pendingOps.filter(
+                (op) => !(op.type === "add" && op.tempId === taskId)
+              ),
+            });
+            return;
+          }
+
+          // Se estiver offline, adiciona na fila de pendingOps para deletar depois
           if (!online) {
             set({ pendingOps: [...pendingOps, { type: "delete", taskId }] });
             return;
           }
 
+          // Se online, chama o backend
           try {
-            await axios.delete(`/tasks/${taskId}`);
+            console.log("Deletando task online:", taskId);
+            await axios.delete(`/tasks/${taskId.toString()}`);
           } catch (error) {
             console.error("Erro ao deletar task:", error);
+            // Opcional: re-adiciona na fila caso dê erro
+            set({
+              pendingOps: [...get().pendingOps, { type: "delete", taskId }],
+            });
           }
         },
 
         toggleTaskStatus: async (taskId) => {
-          const { tasks } = get();
-          const current = tasks.find((t) => t.id === taskId);
+          const current = get().tasks.find((t) => t.id === taskId);
           if (!current) return;
 
           const updated = {
@@ -235,35 +248,24 @@ export const useTasksStore = create<TasksStore>()(
         },
 
         syncPending: async () => {
-          console.log("Sincronizando operações pendentes...");
-          const { pendingOps } = get();
+          const ops = [...get().pendingOps];
+          set({ pendingOps: [] });
 
-          for (const op of pendingOps) {
+          for (const op of ops) {
             try {
               if (op.type === "add") {
-                const { data: newTask } = await axios.post<Task>("/tasks", {
-                  ...op.task,
-                  createdAt: new Date().toISOString(),
-                  updatedAt: null,
-                });
-                // substitui a temp task pelo real
-                set({
-                  tasks: get().tasks.map((t) =>
-                    t.id.startsWith("temp-") && t.title === newTask.title
-                      ? newTask
-                      : t
-                  ),
-                });
+                await get().addTask(op.task);
               }
-
-              if (op.type === "update") await get().updateTask(op.task);
-              if (op.type === "delete") await get().deleteTask(op.taskId);
+              if (op.type === "update") {
+                await get().updateTask(op.task);
+              }
+              if (op.type === "delete") {
+                await get().deleteTask(op.taskId);
+              }
             } catch (e) {
               console.error("Erro ao sincronizar operação pendente:", e);
             }
           }
-
-          set({ pendingOps: [] });
         },
       };
     },
